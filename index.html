@@ -180,7 +180,7 @@
         This is the footer
         <ul>Data Sets Used</ul>
         <li>
-            <a href="SD_Data_small.csv">Dataset 1</a>
+            <a href="SD_Data.csv">Dataset 1</a>
         </li>
         <li>
             Dataset 2
@@ -227,7 +227,7 @@
     }
 
 
-    Papa.parse("file:///C:/Users/Mary/Documents/VS%20Code/COVID-Challenge/SD_Data_small.csv", {
+    Papa.parse("https://marykovic.github.io/COVID19DataChallenge/SD_Data.csv", {
         download: true,
         complete: function(results) {
             console.log(results);
