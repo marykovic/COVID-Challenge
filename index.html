@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>COVID Data Challenge</title>
+    <style>
+        html {
+            scroll-behavior: smooth;
+            min-width: 550px;
+            min-height: 464px;
+            background-color: #e5e4e2;
+        }
+        
+        body {
+            /*font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+                */
+            font: normal 100% Helvetica, Arial, sans-serif;
+            overflow-x: hidden;
+            overflow-y: scroll;
+            margin: 0;
+            height: 100vh;
+        }
+        
+        header {
+            border: 2px solid blue;
+            height: 10%;
+        }
+        
+        footer {
+            border: 2px solid green;
+        }
+        
+        h1 {
+            text-align: center;
+        }
+        
+        h2 {
+            margin: 0;
+        }
+        
+        iframe {
+            height: 100%;
+            width: 100%;
+        }
+        
+        #top {
+            width: 100%;
+            height: 60vh;
+            margin: auto;
+            padding-top: 10px;
+            display: flex;
+            justify-content: space-evenly;
+        }
+        
+        #bottom {
+            width: 100%;
+            margin: auto;
+            padding-top: 10px;
+            padding-bottom: 10px;
+            display: flex;
+            justify-content: space-evenly;
+        }
+        
+        #input {
+            border: 1px solid green;
+            display: inline-block;
+            width: 31%;
+            height: 100%;
+            float: left;
+        }
+        
+        #map {
+            border: 1px solid red;
+            display: inline-block;
+            width: 66%;
+            height: 100%
+        }
+        
+        #disclaimer {
+            border: 1px solid green;
+            display: inline-block;
+            width: 31%;
+            height: 100%;
+            float: left;
+        }
+        
+        #output {
+            border: 1px solid red;
+            display: inline-block;
+            width: 66%;
+            height: 100%;
+        }
+        
+        #main {
+            max-width: 800px;
+            margin: auto;
+            border: 1px solid purple;
+        }
+    </style>
+
+</head>
+
+<body>
+    <header id="header">
+        <h1>COVID Data Challenge</h1>
+    </header>
+
+    <main id="main">
+
+        <section id="top">
+            <div id="input">
+                <h2>Input Header</h2>
+                <form>
+                    <!--Source Zip-->
+                    <label for="source-zip">Source zip code:</label>
+                    <input type="text" id="source-zip" name="source-zip" value=""><br>
+
+                    <!--Input CSV for testing-->
+                    <br><br>
+                    <label for="csv-upload">Choose file to upload</label>
+                    <input type="file" id="csv-upload" accept=".csv">
+                    <button onclick="processFile()">Process</button><br>
+                    <br><br>
+
+                    <!--POIs at Source Zip-->
+                    <select id="POI-dropdown">
+                        <option>Choose a POI</option>
+                    </select><br>
+
+                    <!--Destination Zip-->
+                    <label for="destination-zip">Destination zip code:</label>
+                    <input type="text" id="destination-zip" name="destination-zip" value=""><br>
+
+                    <!--Submit Button-->
+                    <br><input type="button" value="Go" onclick="evaluate_input()" /><br>
+                    <div id="alert" style="color: red"></div>
+                </form>
+
+
+            </div>
+
+            <div id="map">
+            </div>
+        </section>
+
+        <section id="bottom">
+            <div id="disclaimer">
+                <h2>Disclaimer Header</h2>
+                <ul>
+                    <li>
+                        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+                    </li>
+                    <li>
+                        <p>Etiam commodo eros at imperdiet commodo. Aenean egestas aliquam metus, ac laoreet lectus rutrum vehicula. Aliquam erat volutpat.</p>
+                    </li>
+                    <li>
+                        <p>Vestibulum ac velit leo. Aliquam tincidunt sapien lorem, accumsan congue metus lobortis quis.</p>
+                    </li>
+                    <li>
+                        <p>Duis porttitor urna sed orci luctus molestie. Mauris euismod sodales venenatis. Aenean eleifend at velit vitae suscipit. Nullam laoreet efficitur ligula vitae congue. Praesent at augue ligula.</p>
+                    </li>
+                </ul>
+            </div>
+            <div id="output">
+                <h2>Output Header</h2>
+                <p>
+                    The Source Zip Code will be displayed here: <span id="src-zip-out"></span>
+                </p>
+                <p>
+                    The POIs will be displayed here: <span id="POI-out"></span>
+                    <table id="myTable"></table>
+                </p>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        This is the footer
+        <ul>Data Sets Used</ul>
+        <li>
+            <a href="SD_Data_small.csv">Dataset 1</a>
+        </li>
+        <li>
+            Dataset 2
+        </li>
+    </footer>
+
+
+    <script>
+        // Initialize and add the map
+        function initMap() {
+            // The location of Uluru
+            var uluru = {
+                lat: 33.0,
+                lng: -116.86
+            };
+            // The map, centered at Uluru
+            var map = new google.maps.Map(
+                document.getElementById('map'), {
+                    zoom: 9,
+                    center: uluru
+                });
+            // The marker, positioned at Uluru
+
+        }
+    </script>
+    <!--Load the API from the specified URL
+    * The async attribute allows the browser to render the page while the API loads
+    * The key parameter will contain your own API key (which is not needed for this tutorial)
+    * The callback parameter executes the initMap() function
+    -->
+    <script defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB8zfDkpEDIgL0UhUvYvwu-J1JCPvriRIk&callback=initMap">
+    </script>
+
+</body>
+
+<script src="papaparse.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.5.1.min.js" integrity="sha256-9/aliU8dGd2tb6OSsuzixeV4y/faTqgFtohetphbbj0=" crossorigin="anonymous"></script>
+
+
+<script>
+    function evaluate_input() {
+        var srcZip = document.getElementById('source-zip').value;
+        document.getElementById('src-zip-out').innerHTML = srcZip;
+    }
+
+
+    Papa.parse("file:///C:/Users/Mary/Documents/VS%20Code/COVID-Challenge/SD_Data_small.csv", {
+        download: true,
+        complete: function(results) {
+            console.log(results);
+
+            var select = document.getElementById("POI-dropdown")
+
+            /***********************v Put Array here v**************************/
+            var options = ["POI 1", "POI 2", "POI 3", "POI 4", "POI 5"];
+            /***********************^ Put Array here ^****************************/
+            for (var i = 0; i < options.length; i++) {
+                var opt = options[i];
+                var el = document.createElement("option");
+                el.textContent = opt;
+                el.value = opt;
+                select.appendChild(el);
+            }
+        }
+    });
+</script>
+<script>
+</script>
+
+
+
+</html>
