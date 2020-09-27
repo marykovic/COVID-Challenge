@@ -23,22 +23,11 @@
                     <label for="source-zip">Source zip code:</label>
                     <input type="text" id="source-zip" name="source-zip" value=""><br>
 
-                    <!--Input CSV for testing-->
-                    <br><br>
-                    <label for="csv-upload">Choose file to upload</label>
-                    <input type="file" id="csv-upload" accept=".csv">
-                    <button onclick="processFile()">Process</button><br>
-                    <br><br>
-
                     <!--POIs at Source Zip-->
                     <select id="POI-dropdown">
                         <option>Choose a POI</option>
                     </select><br>
-
-                    <!--Destination Zip-->
-                    <label for="destination-zip">Destination zip code:</label>
-                    <input type="text" id="destination-zip" name="destination-zip" value=""><br>
-
+                    
                     <!--Submit Button-->
                     <br><input type="button" value="Go" onclick="evaluate_input()" /><br>
                     <div id="alert" style="color: red"></div>
@@ -86,7 +75,7 @@
         This is the footer
         <ul>Data Sets Used</ul>
         <li>
-            <a href="SD_Data.csv">Dataset 1</a>
+            <a href="sd_fake_risk.csv">Dataset 1</a>
         </li>
         <li>
             Dataset 2
@@ -133,7 +122,7 @@
     }
 
 
-    Papa.parse("https://marykovic.github.io/COVID-Challenge/SD_Data.csv", {
+    Papa.parse("https://marykovic.github.io/COVID-Challenge/sd_fake_risk.csv", {
         download: true,
         complete: function(results) {
             console.log(results);
