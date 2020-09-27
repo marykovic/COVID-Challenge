@@ -19,15 +19,22 @@
             <div id="input">
                 <h2>Input Header</h2>
                 <form>
-                    <!--Source Zip-->
+                    <!--Zip-->
                     <label for="source-zip">Source zip code:</label>
-                    <input type="text" id="source-zip" name="source-zip" value=""><br>
+                    <input type="text" id="source-zip" name="source-zip" value="" onchange="enable_type(this.value)"><br>
 
-                    <!--POIs at Source Zip-->
-                    <select id="POI-dropdown">
-                        <option>Choose a POI</option>
+                    <!--Types at Source Zip-->
+                    <label for="type-dropdown">Select a Type:</label><br>
+                    <select id="type-dropdown" disabled="disabled" onchange="enable_POI()">
+                        <option>Type</option>
                     </select><br>
-                    
+
+                    <!--POIs at Source Zip & Type-->
+                    <label for="POI-dropdown">Select a Point of Interest:</label><br>
+                    <select id="POI-dropdown" disabled="disabled">
+                        <option>POI</option>
+                    </select><br>
+
                     <!--Submit Button-->
                     <br><input type="button" value="Go" onclick="evaluate_input()" /><br>
                     <div id="alert" style="color: red"></div>
@@ -75,7 +82,7 @@
         This is the footer
         <ul>Data Sets Used</ul>
         <li>
-            <a href="sd_fake_risk.csv">Dataset 1</a>
+            <a href="sd_data_final.csv">Dataset 1</a>
         </li>
         <li>
             Dataset 2
@@ -83,6 +90,9 @@
     </footer>
 
 
+    <!--Google Maps-->
+
+    <!-----------------------------------------------------------------------------------------------------------------------
     <script>
         // Initialize and add the map
         function initMap() {
@@ -100,14 +110,15 @@
             // The marker, positioned at Uluru
 
         }
+        /*Load the API from the specified URL
+         The async attribute allows the browser to render the page while the API loads
+         The key parameter will contain your own API key (which is not needed for this tutorial)
+         The callback parameter executes the initMap() function
+        */
     </script>
-    <!--Load the API from the specified URL
-    * The async attribute allows the browser to render the page while the API loads
-    * The key parameter will contain your own API key (which is not needed for this tutorial)
-    * The callback parameter executes the initMap() function
-    -->
     <script defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB8zfDkpEDIgL0UhUvYvwu-J1JCPvriRIk&callback=initMap">
     </script>
+    ------------------------------------------------------------------------------------------------------------------------>
 
 </body>
 
@@ -116,35 +127,192 @@
 
 
 <script>
+    evaluate_input();
+
     function evaluate_input() {
-        var srcZip = document.getElementById('source-zip').value;
-        document.getElementById('src-zip-out').innerHTML = srcZip;
+        /*******************************************************/
+        /*Begin evaluating                                     */
+
+
+    }
+
+    /**********************OnCLICK Events*************************/
+    function is_zip_valid(data) {
+        var usr_zip = (document.getElementById("source-zip").value);
+        var csv_zip;
+        var zip_arr = new Array();
+        for (var i = 0; i < data.length; i++) {
+
+        }
+    }
+
+    function enable_type(value) {
+        if (parseData(is_zip_valid));
+
+        document.getElementById("type-dropdown").disabled = false;
+        parseData(getTypes);
+    }
+
+    function enable_POI() {
+        document.getElementById("POI-dropdown").disabled = false;
+        parseData(getPOIs);
+    }
+
+    /**********************OnCLICK Events*************************/
+
+    function has_input(ID_array) {
+        var input;
+        for (var i = 0; i < ID_array.length; i++) {
+            input = document.getElementById(ID_array[i]);
+            if (input && input.value) {
+                continue;
+            }
+            return false
+        }
+        return true;
+    }
+
+    function tester() {}
+
+    function calculate_risk_comparison() {
+
+    }
+
+    function modify_output_section() {}
+
+    function assign_types() {}
+
+    function append_dropdown(elementID, optionsArr) {
+        var select = document.getElementById(elementID)
+        for (var i = 0; i < optionsArr.length; i++) {
+            var opt = (optionsArr[i]);
+            var el = document.createElement("option");
+            el.textContent = opt;
+            el.value = opt;
+            select.appendChild(el);
+        }
+    }
+
+    function append_dropdown_object(elementID, optionsArr) {
+        var select = document.getElementById(elementID)
+        for (var i = 0; i < optionsArr.length; i++) {
+            var opt = (optionsArr[i].name);
+            var el = document.createElement("option");
+            el.textContent = opt;
+            el.value = opt;
+            select.appendChild(el);
+        }
     }
 
 
-    Papa.parse("https://marykovic.github.io/COVID-Challenge/sd_fake_risk.csv", {
-        download: true,
-        complete: function(results) {
-            console.log(results);
-
-            var select = document.getElementById("POI-dropdown")
-
-            /***********************v Put Array here v**************************/
-            var options = ["POI 1", "POI 2", "POI 3", "POI 4", "POI 5"];
-            /***********************^ Put Array here ^****************************/
-            for (var i = 0; i < options.length; i++) {
-                var opt = options[i];
-                var el = document.createElement("option");
-                el.textContent = opt;
-                el.value = opt;
-                select.appendChild(el);
+    function isUnique(item, arr) {
+        for (var i = 0; i < arr.length; i++) {
+            if (item == (arr[i])) {
+                return false;
             }
         }
-    });
+        return true;
+    }
+
+    function isUnique_object(item, arr) {
+        for (var i = 0; i < arr.length; i++) {
+            if (item == (arr[i].name)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    function getTypes(data) {
+        var usr_zip = document.getElementById('source-zip').value;
+        var csv_zip;
+        var csv_type;
+        var row = [];
+        var type_arr = new Array();
+        var count = 0;
+        for (var i = 0; i < data.length; i++) {
+
+            row = Object.values(data[i]); //get the ith row
+            csv_type = row[19]; // the type of a POI
+            csv_zip = row[3]; // the zip where a POI is located
+
+            if (isUnique_object(csv_type, type_arr) && csv_zip == usr_zip) { // if the value is unique, add it to the array
+                var type_object = {
+                    name: csv_type, // Create a type object that holds the name of the type and
+                    type_count: 1 // how many times that type displays in the data
+                };
+                type_arr.push(type_object);
+            }
+        }
+        type_arr.sort((a, b) => (a.name > b.name) ? 1 : ((b.name > a.name) ? -1 : 0));
+        append_dropdown_object("type-dropdown", type_arr);
+    }
+
+    function getPOIs(data) {
+        //user input
+        var usr_zip = document.getElementById('source-zip').value;
+        var usr_type = document.getElementById('type-dropdown').value;
+
+        //csv values
+        var csv_zip;
+        var csv_type;
+        var csv_POI;
+        var csv_risk;
+        var csv_address;
+
+        //csv row
+        var row = [];
+        var POI_arr = new Array();
+        var test_arr = new Array();
+
+        var count = 0;
+        for (var i = 0; i < data.length; i++) {
+            row = Object.values(data[i]); //get the ith row
+            csv_zip = row[3];
+            csv_type = row[19];
+            csv_POI = row[1];
+            csv_risk = row[20];
+            csv_address = row[17];
+            if ((csv_zip == usr_zip) && (csv_type == usr_type))
+                if (isUnique(csv_POI, POI_arr)) {
+                    POI_arr.push(csv_POI);
+                    var POI_object = {
+                        name: csv_POI,
+                        risk: csv_risk,
+
+                    };
+                    test_arr.push(POI_object);
+
+                } else { //not unique
+                    /*var POI_object = {
+                        name: csv_POI + " (" + csv_address + ")",
+                        risk: csv_risk,
+                    };
+                    POI_arr.push*/
+                }
+
+        }
+        //console.log(POI_arr);
+        POI_arr.sort();
+        //append_dropdown("POI-dropdown", POI_arr);
+        test_arr.sort((a, b) => (a.name > b.name) ? 1 : ((b.name > a.name) ? -1 : 0));
+        console.log(test_arr);
+        append_dropdown_object("POI-dropdown", test_arr);
+
+    }
+
+    function parseData(callback) {
+        Papa.parse("https://marykovic.github.io/COVID-Challenge/sd_data_final.csv", {
+            download: true,
+            header: true,
+            //preview: 100,
+            complete: function(results) {
+                callback(results.data);
+            }
+        });
+    }
 </script>
 <script>
 </script>
-
-
 
 </html>
