@@ -6,88 +6,111 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>COVID Data Challenge</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
 </head>
 
 <body>
-    <header id="header">
-        <h1>COVID Data Challenge</h1>
-    </header>
+    <div class="jumbotron text-center">
+        <h1>COVID Travel Planner</h1>
+        <p><b>Contributors:</b> Bailey Man, Pietro Emilio Spini, Mary Kovic, Adi Gupta, Ansh Motiani</p>
+    </div>
 
-    <main id="main">
+    <div class="container">
+        <div class="row">
+            <div class="col-sm-3">
+                <div class="row">
+                    <h2>Input</h2>
+                    <form>
+                        <!--Zip-->
+                        <div class="form-group">
+                            <label for="source-zip">Source zip code:</label>
+                            <input type="text" id="source-zip" class="input" name="source-zip" value="" onchange="enable_type(this.value)"><br>
+                        </div>
 
-        <section id="top">
-            <div id="input">
-                <h2>Input Header</h2>
-                <form>
-                    <!--Zip-->
-                    <label for="source-zip">Source zip code:</label>
-                    <input type="text" id="source-zip" name="source-zip" value="" onchange="enable_type(this.value)"><br>
+                        <!--Types at Source Zip-->
+                        <div class="form-group">
+                            <label for="type-dropdown">Select a Type:</label><br>
+                            <select id="type-dropdown" class="input" disabled="disabled" onchange="enable_POI()">
+                            <option>Select a type:</option>
+                        </select><br>
+                        </div>
 
-                    <!--Types at Source Zip-->
-                    <label for="type-dropdown">Select a Type:</label><br>
-                    <select id="type-dropdown" disabled="disabled" onchange="enable_POI()">
-                        <option>Type</option>
-                    </select><br>
+                        <!--POIs at Source Zip & Type-->
+                        <div class="form-group">
+                            <label for="POI-dropdown">Select a Point of Interest:</label><br>
+                            <select id="POI-dropdown" class="input" disabled="disabled">
+                            <option>Select a Point of Interest:</option>
+                        </select><br>
+                        </div>
 
-                    <!--POIs at Source Zip & Type-->
-                    <label for="POI-dropdown">Select a Point of Interest:</label><br>
-                    <select id="POI-dropdown" disabled="disabled">
-                        <option>POI</option>
-                    </select><br>
+                        <!--Submit Button-->
+                        <br><input type="button" class="input" value="Go" onclick="calculate_risk_comparison()" /><br>
+                        <div id="alert" style="color: red"></div>
+                    </form>
+                </div>
+                <div class="row">
+                    <h2>The Future of this Dashboard</h2>
+                    <p>As time permits, the project has plans for:</p>
+                    <ul>
+                        <li>
+                            More accurate 'typing' of businesses
+                        </li>
+                        <li>
+                            Map-based output
+                        </li>
+                        <li>
+                            Time_of_day and Day_of_week filtering
+                        </li>
+                        <li>
+                            Up-to-date (pulled from data stream) model parameters (currently accurate up to september 23)
+                        </li>
+                        <li>
+                            Clean Model Pipeline from infection rate/zip -> mobility data -> POI risk
+                        </li>
+                        <li>
+                            Contact tracing of infected individuals to better predict active case counts
+                        </li>
+                    </ul>
+                    <p>All feedback or suggestions about this dashboard is appreciated: <br><a href="https://docs.google.com/forms/d/e/1FAIpQLSdFxozHz6-RYLhfNXnBTrYXNpNLmYl7wkyUa-d9KKNXrRHRgg/viewform">Google Forms Survey</a></p>
 
-                    <!--Submit Button-->
-                    <br><input type="button" value="Go" onclick="evaluate_input()" /><br>
-                    <div id="alert" style="color: red"></div>
-                </form>
-
-
+                </div>
             </div>
+            <div id="comparison_output" class="col-sm-6">
+                <h2></h2>
 
-            <div id="map">
-            </div>
-        </section>
-
-        <section id="bottom">
-            <div id="disclaimer">
-                <h2>Disclaimer Header</h2>
-                <ul>
-                    <li>
-                        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
-                    </li>
-                    <li>
-                        <p>Etiam commodo eros at imperdiet commodo. Aenean egestas aliquam metus, ac laoreet lectus rutrum vehicula. Aliquam erat volutpat.</p>
-                    </li>
-                    <li>
-                        <p>Vestibulum ac velit leo. Aliquam tincidunt sapien lorem, accumsan congue metus lobortis quis.</p>
-                    </li>
-                    <li>
-                        <p>Duis porttitor urna sed orci luctus molestie. Mauris euismod sodales venenatis. Aenean eleifend at velit vitae suscipit. Nullam laoreet efficitur ligula vitae congue. Praesent at augue ligula.</p>
-                    </li>
+                <ul class="nav nav-tabs">
+                    <li class="active" onlcick="change-tab"><a href="#local-tab">Within Zip</a></li>
+                    <!--<li><a data-toggle="tab" href="#county-tab">County-wide</a></li>-->
                 </ul>
-            </div>
-            <div id="output">
-                <h2>Output Header</h2>
-                <p>
-                    The Source Zip Code will be displayed here: <span id="src-zip-out"></span>
-                </p>
-                <p>
-                    The POIs will be displayed here: <span id="POI-out"></span>
-                    <table id="myTable"></table>
-                </p>
-            </div>
-        </section>
-    </main>
 
-    <footer>
-        This is the footer
-        <ul>Data Sets Used</ul>
-        <li>
-            <a href="Final_POI_risk_9_23_2020.csv">Dataset 1</a>
-        </li>
-        <li>
-            Dataset 2
-        </li>
-    </footer>
+                <div class="tab-content">
+                    <div id="local-tab" class="tab-pane fade in active">
+                        <p id="header-out" style="padding: 30px 30px 0 30px;"></p>
+                        <div id="POI-local-out" style="padding-left: 45px;"></div>
+                    </div>
+                    <!--
+                    <div id="county-tab" class="tab-pane fade in active">
+                        <h4>County Header</h4>
+                        <div id="POI-county-out"></div>
+                    </div>
+                -->
+                </div>
+
+
+
+            </div>
+            <div class="col-sm-3">
+                <h2>But, what does it mean?</h2>
+                <p>The output seen is a list of all other Places of Interest of the same type as the original. These POI are then filtered either by zip code or by county to provide the desired comparisons.</p>
+                <p>This model of 'risk factor' is defined as the probability that an active case of COVID-19 visited the selected point of interest recently. We take into account case counts and population from each zip code in San Diego county, and analyze
+                    the movement of visitors to each point of interest from those zip codes.</p>
+                <p>For more information on the model, please see the following paper: <br><a href="COVID_Brief.pdf">COVID Brief</a></p>
+
+            </div>
+        </div>
+    </div>
+    <div class="jumbotron text-center" style="margin-bottom:0">
+    </div>
 
 
     <!--Google Maps-->
@@ -127,14 +150,8 @@
 
 
 <script>
-    evaluate_input();
-
-    function evaluate_input() {
-        /*******************************************************/
-        /*Begin evaluating                                     */
-
-
-    }
+    /**************************Variables**************************/
+    var POI_arr = new Array();
 
     /**********************OnCLICK Events*************************/
     function is_zip_valid(data) {
@@ -144,6 +161,7 @@
         for (var i = 0; i < data.length; i++) {
 
         }
+
     }
 
     function enable_type(value) {
@@ -156,9 +174,64 @@
     function enable_POI() {
         document.getElementById("POI-dropdown").disabled = false;
         parseData(getPOIs);
+
     }
 
-    /**********************OnCLICK Events*************************/
+    function getProbability(risk) {
+        if (risk < 0.33)
+            return "LOW";
+        else if (risk < 0.66)
+            return "MODERATE";
+        else
+            return "HIGH";
+    }
+
+    function get_POI_risk(POI, arr) {
+        for (var i = 0; i < arr.length; i++) {
+            if (POI == arr[i].name) {
+                return arr[i].risk;
+            }
+        }
+    }
+
+    function calculate_risk_comparison() {
+        var usr_POI = document.getElementById("POI-dropdown").value;
+        var numElements = POI_arr.length;
+        var count_below, count_above;
+
+
+        //use POIarray to create new elements
+        POI_arr.sort((a, b) => (a.risk < b.risk) ? 1 : ((b.risk < a.risk) ? -1 : 0));
+
+        var header = document.getElementById("header-out");
+        header.append("There is a ", getProbability(get_POI_risk(usr_POI, POI_arr)), " probability that atleast one person infected with COVID will travel to the same point of interest as you.");
+        var element = document.getElementById("POI-local-out");
+        for (var i = 0; i < POI_arr.length; i++) {
+            var POI_name = POI_arr[i].name;
+            var POI_risk = POI_arr[i].risk;
+            var POI_address = POI_arr[i].address;
+
+            var el = document.createElement("div");
+            el.setAttribute("class", "POI-card");
+            //el.style.position = "absolute";
+            //el.style.bottom = (POI_risk * 100) + "%";
+            if (POI_name == usr_POI) {
+                el.style.background = "#FFDA00";
+                el.style.color = "black";
+            } else {
+                el.style.background = "rgb(20, 8, 104)";
+                el.style.color = "white";
+            }
+
+            el.textContent = POI_name;
+            console.log(el.textContent);
+            element.append(el);
+            element.append(document.createElement("br"));
+        }
+
+    }
+
+    /*************^^^^^OnCLICK Events^^^^^^********************/
 
     function has_input(ID_array) {
         var input;
@@ -174,13 +247,12 @@
 
     function tester() {}
 
-    function calculate_risk_comparison() {
+
+
+    function modify_output_section() {
+
 
     }
-
-    function modify_output_section() {}
-
-    function assign_types() {}
 
     function append_dropdown(elementID, optionsArr) {
         var select = document.getElementById(elementID)
@@ -223,6 +295,16 @@
         return true;
     }
 
+    function append_address_to_object(name, address, arr) {
+        for (var i = 0; i < arr.length; i++) {
+            var object = arr[i];
+            if (object.name == name) {
+                (object.address_arr).push(address);
+            }
+        }
+
+    }
+
     function getTypes(data) {
         var usr_zip = document.getElementById('source-zip').value;
         var csv_zip;
@@ -249,65 +331,42 @@
     }
 
     function getPOIs(data) {
-        //user input
-        var usr_zip = document.getElementById('source-zip').value;
-        var usr_type = document.getElementById('type-dropdown').value;
-
-        //csv values
-        var csv_zip;
-        var csv_type;
-        var csv_POI;
-        var csv_risk;
-        var csv_address;
-
-        //csv row
-        var row = [];
-        var POI_arr = new Array();
-        var test_arr = new Array();
-
-        var count = 0;
+        var usr_zip = document.getElementById('source-zip').value; // user input zip
+        var usr_type = document.getElementById('type-dropdown').value; // user input type
+        var csv_zip, csv_type, csv_POI, csv_risk, csv_address; //values extracted from csv
+        var row = []; //csv row
+        var unique = true;
         for (var i = 0; i < data.length; i++) {
             row = Object.values(data[i]); //get the ith row
             csv_zip = row[3];
             csv_type = row[19];
             csv_POI = row[1];
-            csv_risk = row[20];
+            csv_risk = row[21];
             csv_address = row[17];
             if ((csv_zip == usr_zip) && (csv_type == usr_type))
-                if (isUnique(csv_POI, POI_arr)) {
-                    POI_arr.push(csv_POI);
+                if (isUnique_object(csv_POI, POI_arr)) {
+                    // if the object is unique, create a new object, push to array
                     var POI_object = {
                         name: csv_POI,
                         risk: csv_risk,
-
+                        address_arr: [csv_address],
                     };
-                    test_arr.push(POI_object);
-
-                } else { //not unique
-                    /*var POI_object = {
-                        name: csv_POI + " (" + csv_address + ")",
-                        risk: csv_risk,
-                    };
-                    POI_arr.push*/
+                    POI_arr.push(POI_object);
+                } else {
+                    append_address_to_object(csv_POI, csv_address, POI_arr);
                 }
-
         }
-        //console.log(POI_arr);
-        POI_arr.sort();
-        //append_dropdown("POI-dropdown", POI_arr);
-        test_arr.sort((a, b) => (a.name > b.name) ? 1 : ((b.name > a.name) ? -1 : 0));
-        console.log(test_arr);
-        append_dropdown_object("POI-dropdown", test_arr);
-
+        POI_arr.sort((a, b) => (a.name > b.name) ? 1 : ((b.name > a.name) ? -1 : 0));
+        append_dropdown_object("POI-dropdown", POI_arr);
     }
 
     function parseData(callback) {
         Papa.parse("https://marykovic.github.io/COVID-Challenge/Final_POI_risk_9_23_2020.csv", {
             download: true,
             header: true,
-            //preview: 100,
             complete: function(results) {
                 callback(results.data);
+
             }
         });
     }
