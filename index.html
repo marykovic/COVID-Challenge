@@ -584,8 +584,4 @@
     }
 </script>
 
-; } else { append_address_to_object(csv_POI, csv_address, POI_arr); } } POI_arr.sort((a, b) => (a.name > b.name) ? 1 : ((b.name > a.name) ? -1 : 0)); append_dropdown_object("POI-dropdown", POI_arr); } function parseData(callback) { Papa.parse("https://marykovic.github.io/COVID-Challenge/data.csv",
-{ download: true, header: true, complete: function(results) { callback(results.data); } }); }
-</script>
-
 </html>
