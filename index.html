@@ -7,28 +7,6 @@
     <title>COVID Data Challenge</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
-    <style>
-        .input {
-    width: 90%;
-    border: 1px solid grey;
-    border-radius: 10px;
-}
-
-#gradient-meter {
-    background: linear-gradient(to top, rgba(255, 0, 0, 1) 0%, rgba(255, 255, 255, 1) 50%, rgba(0, 255, 32, 1) 100%);
-}
-
-.POI-card {
-    border-radius: 2px 10px 2px 10px;
-    /*color: white;
-    background: rgb(20, 8, 104);
-    */
-    box-shadow: 5px 5px 2.5px grey;
-    padding: 6px;
-    display: inline-block;
-    margin: 5px 0 5px 0;
-}
-    </style>
 </head>
 
 <body>
@@ -46,14 +24,14 @@
                         <!--Zip-->
                         <div class="form-group">
                             <label for="source-zip">Source zip code:</label>
-                            <input type="text" id="source-zip" class="input" name="source-zip" value="" onchange="enable_type(this.value)"><br>
+                            <input type="text" id="source-zip" class="input" name="source-zip" value="" onchange="enable_type(this.value); enable_POI()"><br>
                         </div>
 
                         <!--Types at Source Zip-->
                         <div class="form-group">
                             <label for="type-dropdown">Select a Type:</label><br>
-                            <select id="type-dropdown" class="input" disabled="disabled" onchange="enable_POI()">
-                            <option>Select a type:</option>
+                            <select id="type-dropdown" class="input" disabled="disabled" onchange="enable_POI(); ">
+                            <option></option>
                         </select><br>
                         </div>
 
@@ -61,12 +39,12 @@
                         <div class="form-group">
                             <label for="POI-dropdown">Select a Point of Interest:</label><br>
                             <select id="POI-dropdown" class="input" disabled="disabled">
-                            <option>Select a Point of Interest:</option>
+                            <option></option>
                         </select><br>
                         </div>
 
                         <!--Submit Button-->
-                        <br><input type="button" class="input" value="Go" onclick="calculate_risk_comparison()" /><br>
+                        <br><input id="submit" type="button" class="input" value="Go" disabled="disabled" onclick="calculate_risk_comparison()" /><br>
                         <div id="alert" style="color: red"></div>
                     </form>
                 </div>
@@ -174,6 +152,13 @@
 <script>
     /**************************Variables**************************/
     var POI_arr = new Array();
+    var col_POI = 0,
+        col_zip = 1,
+        col_type = 5,
+        col_address = 6,
+        col_lat = 7,
+        col_lng = 8,
+        col_risk = 10;
 
     /**********************OnCLICK Events*************************/
     function is_zip_valid(data) {
@@ -183,20 +168,41 @@
         for (var i = 0; i < data.length; i++) {
 
         }
-
     }
 
-    function enable_type(value) {
+    function clear_dropdown(elementID) {
+        var select = document.getElementById(elementID)
+        var el = document.createElement("option");
+        el.textContent = "";
+        el.value = "";
+
+        select.options.length = 0;
+        select.appendChild(el);
+    }
+
+    function enable_type(zip) {
         if (parseData(is_zip_valid));
 
+        //clear type and POI dropdowns
+        clear_dropdown("type-dropdown");
+        clear_dropdown("POI-dropdown");
+
+        //enable type dropdown and disable POI dropdown
         document.getElementById("type-dropdown").disabled = false;
+        document.getElementById("POI-dropdown").disabled = true;
+
+        //fill the type dropdown with the available types
         parseData(getTypes);
     }
 
     function enable_POI() {
-        document.getElementById("POI-dropdown").disabled = false;
-        parseData(getPOIs);
+        // clear POI dropdown
+        clear_dropdown("POI-dropdown");
 
+        //enable POI dropdown and submit button
+        document.getElementById("POI-dropdown").disabled = false;
+        document.getElementById("submit").disabled = false;
+        parseData(getPOIs);
     }
 
     function getProbability(risk) {
@@ -216,6 +222,10 @@
         }
     }
 
+    function clearBox(elementID) {
+        document.getElementById(elementID).innerHTML = "";
+    }
+
     function calculate_risk_comparison() {
         var usr_POI = document.getElementById("POI-dropdown").value;
         var numElements = POI_arr.length;
@@ -225,30 +235,29 @@
         //use POIarray to create new elements
         POI_arr.sort((a, b) => (a.risk < b.risk) ? 1 : ((b.risk < a.risk) ? -1 : 0));
 
-        var header = document.getElementById("header-out");
-        header.append("There is a ", getProbability(get_POI_risk(usr_POI, POI_arr)), " probability that atleast one person infected with COVID will travel to the same point of interest as you.");
-        var element = document.getElementById("POI-local-out");
+        clearBox("POI-local-out");
+        document.getElementById("header-out").innerHTML = ("There is a " + getProbability(get_POI_risk(usr_POI, POI_arr)) + " probability that atleast one person infected with COVID will travel to the same point of interest as you.");
+        var POI_out = document.getElementById("POI-local-out");
         for (var i = 0; i < POI_arr.length; i++) {
             var POI_name = POI_arr[i].name;
             var POI_risk = POI_arr[i].risk;
             var POI_address = POI_arr[i].address;
 
-            var el = document.createElement("div");
-            el.setAttribute("class", "POI-card");
+            var POI_card = document.createElement("div");
+            POI_card.setAttribute("class", "POI-card");
             //el.style.position = "absolute";
             //el.style.bottom = (POI_risk * 100) + "%";
             if (POI_name == usr_POI) {
-                el.style.background = "#FFDA00";
-                el.style.color = "black";
+                POI_card.style.background = "#FFDA00";
+                POI_card.style.color = "black";
             } else {
-                el.style.background = "rgb(20, 8, 104)";
-                el.style.color = "white";
+                POI_card.style.background = "rgb(20, 8, 104)";
+                POI_card.style.color = "white";
             }
 
-            el.textContent = POI_name;
-            console.log(el.textContent);
-            element.append(el);
-            element.append(document.createElement("br"));
+            POI_card.textContent = POI_name;
+            POI_out.append(POI_card);
+            POI_out.append(document.createElement("br"));
         }
 
     }
@@ -265,15 +274,6 @@
             return false
         }
         return true;
-    }
-
-    function tester() {}
-
-
-
-    function modify_output_section() {
-
-
     }
 
     function append_dropdown(elementID, optionsArr) {
@@ -308,7 +308,7 @@
         return true;
     }
 
-    function isUnique_object(item, arr) {
+    function is_unique_object(item, arr) {
         for (var i = 0; i < arr.length; i++) {
             if (item == (arr[i].name)) {
                 return false;
@@ -329,18 +329,17 @@
 
     function getTypes(data) {
         var usr_zip = document.getElementById('source-zip').value;
-        var csv_zip;
-        var csv_type;
+        var csv_zip, csv_type;
         var row = [];
         var type_arr = new Array();
         var count = 0;
         for (var i = 0; i < data.length; i++) {
 
             row = Object.values(data[i]); //get the ith row
-            csv_type = row[19]; // the type of a POI
-            csv_zip = row[3]; // the zip where a POI is located
+            csv_type = row[col_type]; // the type of a POI
+            csv_zip = row[col_zip]; // the zip where a POI is located
 
-            if (isUnique_object(csv_type, type_arr) && csv_zip == usr_zip) { // if the value is unique, add it to the array
+            if (is_unique_object(csv_type, type_arr) && csv_zip == usr_zip) { // if the value is unique, add it to the array
                 var type_object = {
                     name: csv_type, // Create a type object that holds the name of the type and
                     type_count: 1 // how many times that type displays in the data
@@ -358,15 +357,17 @@
         var csv_zip, csv_type, csv_POI, csv_risk, csv_address; //values extracted from csv
         var row = []; //csv row
         var unique = true;
+
+        POI_arr = [];
         for (var i = 0; i < data.length; i++) {
             row = Object.values(data[i]); //get the ith row
-            csv_zip = row[3];
-            csv_type = row[19];
-            csv_POI = row[1];
-            csv_risk = row[21];
-            csv_address = row[17];
+            csv_zip = row[col_zip];
+            csv_type = row[col_type];
+            csv_POI = row[col_POI];
+            csv_risk = row[col_risk];
+            csv_address = row[col_address];
             if ((csv_zip == usr_zip) && (csv_type == usr_type))
-                if (isUnique_object(csv_POI, POI_arr)) {
+                if (is_unique_object(csv_POI, POI_arr)) {
                     // if the object is unique, create a new object, push to array
                     var POI_object = {
                         name: csv_POI,
@@ -383,7 +384,7 @@
     }
 
     function parseData(callback) {
-        Papa.parse("https://marykovic.github.io/COVID-Challenge/Final_POI_risk_9_23_2020.csv", {
+        Papa.parse("https://marykovic.github.io/COVID-Challenge/data.csv", {
             download: true,
             header: true,
             complete: function(results) {
@@ -392,8 +393,6 @@
             }
         });
     }
-</script>
-<script>
 </script>
 
 </html>
