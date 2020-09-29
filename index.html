@@ -12,40 +12,44 @@
 <body>
     <div class="jumbotron text-center">
         <h1>COVID Travel Planner</h1>
-        <p><b>Contributors:</b> Bailey Man, Pietro Emilio Spini, Mary Kovic, Adi Gupta, Ansh Motiani</p>
+        <h3><b>Make more informed desicions about traveling during the Era of COVID-19</b></h3>
+        <br>
+        <p style="font-size:medium; margin-bottom: -20px"><b>Contributors:</b> Bailey Man, Pietro Emilio Spini, Mary Kovic, Adi Gupta, Ansh Motiani</p>
     </div>
 
     <div class="container">
         <div class="row">
             <div class="col-sm-3">
                 <div class="row">
-                    <h2>Input</h2>
-                    <form>
-                        <!--Zip-->
-                        <div class="form-group">
-                            <label for="source-zip">Source zip code:</label>
-                            <input type="text" id="source-zip" class="input" name="source-zip" value="" onchange="enable_type(this.value); enable_POI()"><br>
+                    <h2></h2>
+                    <form style="box-shadow: 0 0 10px grey; padding: 0 0 0 10px;">
+                        <!--ZIP-->
+                        <div class="form-group" style="padding: 10px 0 0 0;">
+                            <label for="source-zip">Zip code:</label>
+                            <input type="text" id="source-zip" class="input" name="source-zip" value="" onchange="enable_type(this.value);" onkeypress="enable_type(this.value)"><br>
+                            <div>
+                                <h5 id="invalid_zip_msg"></h5>
+                            </div>
                         </div>
 
-                        <!--Types at Source Zip-->
+                        <!--TYPE at Source Zip-->
                         <div class="form-group">
-                            <label for="type-dropdown">Select a Type:</label><br>
+                            <label for="type-dropdown">Select a type of service:</label><br>
                             <select id="type-dropdown" class="input" disabled="disabled" onchange="enable_POI(); ">
                             <option></option>
-                        </select><br>
+                            </select><br>
                         </div>
 
                         <!--POIs at Source Zip & Type-->
                         <div class="form-group">
-                            <label for="POI-dropdown">Select a Point of Interest:</label><br>
-                            <select id="POI-dropdown" class="input" disabled="disabled">
+                            <label for="POI-dropdown">Select an establishment:</label><br>
+                            <select id="POI-dropdown" class="input" disabled="disabled" onchange="enable_submit()">
                             <option></option>
                         </select><br>
                         </div>
 
-                        <!--Submit Button-->
-                        <br><input id="submit" type="button" class="input" value="Go" disabled="disabled" onclick="calculate_risk_comparison()" /><br>
-                        <div id="alert" style="color: red"></div>
+                        <!--SUBMIT Button-->
+                        <br><input id="submit" type="button" class="input" value="Go" disabled="disabled" onclick="calculate_risk_comparison()" /><br><br>
                     </form>
                 </div>
                 <div class="row">
@@ -76,17 +80,26 @@
                 </div>
             </div>
             <div id="comparison_output" class="col-sm-6">
-                <h2></h2>
-
+                <h2 style="text-align: center;">Search for similar locations within the same Zipcode</h2>
+                <!--
                 <ul class="nav nav-tabs">
-                    <li class="active" onlcick="change-tab"><a href="#local-tab">Within Zip</a></li>
-                    <!--<li><a data-toggle="tab" href="#county-tab">County-wide</a></li>-->
+                    <li class="active"><a></a></li>
+                    <li><a data-toggle="tab" href="#county-tab">County-wide</a></li>
                 </ul>
+            -->
 
                 <div class="tab-content">
                     <div id="local-tab" class="tab-pane fade in active">
-                        <p id="header-out" style="padding: 30px 30px 0 30px;"></p>
-                        <div id="POI-local-out" style="padding-left: 45px;"></div>
+                        <p id="out_1" style="padding: 30px 30px 0 30px; font-weight: bold;"></p>
+                        <p id="out_2" style="padding: 0 30px 0 30px; font-weight: bold;"></p>
+                        <p id="out_3" style="padding: 0 30px 0 30px; font-weight: bold;"></p>
+
+                        <div id="POI-card-container">
+                            <div id="POI-card-container-overlay">
+                                <table id="POI-table" style="padding-left: 45px;">
+                                </table>
+                            </div>
+                        </div>
                     </div>
                     <!--
                     <div id="county-tab" class="tab-pane fade in active">
@@ -95,12 +108,9 @@
                     </div>
                 -->
                 </div>
-
-
-
             </div>
             <div class="col-sm-3">
-                <h2>But, what does it mean?</h2>
+                <h2>How "risk" is calculated</h2>
                 <p>The output seen is a list of all other Places of Interest of the same type as the original. These POI are then filtered either by zip code or by county to provide the desired comparisons.</p>
                 <p>This model of 'risk factor' is defined as the probability that an active case of COVID-19 visited the selected point of interest recently. We take into account case counts and population from each zip code in San Diego county, and analyze
                     the movement of visitors to each point of interest from those zip codes.</p>
@@ -152,6 +162,8 @@
 <script>
     /**************************Variables**************************/
     var POI_arr = new Array();
+
+    // Relavent columns in the csv data file
     var col_POI = 0,
         col_zip = 1,
         col_type = 5,
@@ -163,12 +175,261 @@
     /**********************OnCLICK Events*************************/
     function is_zip_valid(data) {
         var usr_zip = (document.getElementById("source-zip").value);
-        var csv_zip;
+        var row = new Array();
         var zip_arr = new Array();
         for (var i = 0; i < data.length; i++) {
+            row = Object.values(data[i]); //get the ith row
+            csv_zip = row[col_zip];
+            if (isUnique(csv_zip, zip_arr)) {
+                zip_arr.push(csv_zip);
+            }
+            if (csv_zip === usr_zip) {
+                console.log("valid");
+            }
+        }
+        console.log("invalid");
+        console.log(zip_arr);
+        var s = "";
+        for (var i = 0; i < zip_arr.length; i++) {
+            s += zip_arr[i] + ",";
+        }
+        console.log(s);
+        return false;
+    }
 
+    function enable_type(zip) {
+        var el = document.getElementById("invalid_zip_msg");
+        if (!parseData(is_zip_valid)) {
+            innerHTML = "";
+            //clear type and POI dropdowns
+            clear_dropdown("type-dropdown");
+            clear_dropdown("POI-dropdown");
+
+            //enable type dropdown and disable POI dropdown
+            document.getElementById("type-dropdown").disabled = false;
+            document.getElementById("POI-dropdown").disabled = true;
+            document.getElementById("submit").disabled = true;
+            clearBox("POI-table");
+            clearBox("out_1");
+            clearBox("out_2");
+
+            //fill the type dropdown with the available types
+            parseData(getTypes);
+        } else {
+            console.log("Invalid");
+            el.innerHTML = "Please choose another zip";
         }
     }
+
+    function enable_POI() {
+        // clear POI dropdown
+        clear_dropdown("POI-dropdown");
+
+        //enable POI dropdown and submit button
+        document.getElementById("POI-dropdown").disabled = false;
+        document.getElementById("submit").disabled = true;
+        parseData(getPOIs);
+
+    }
+
+    function enable_submit() {
+        document.getElementById("submit").disabled = false;
+    }
+
+    function create_header(POI_out) {
+        var table_header = document.createElement("tr");
+        var table_head_POI = document.createElement("th");
+        var table_head_risk = document.createElement("th");
+
+        table_head_POI.textContent = "Establishment Name";
+        table_head_risk.textContent = "Risk Factor";
+
+        table_header.style = "width: 100%;"
+        table_head_risk.style = "text-align: right;";
+
+        table_header.append(table_head_POI);
+        table_header.append(table_head_risk);
+
+        POI_out.append(table_header);
+    }
+
+
+    function calculate_risk_comparison() {
+        //use POIarray to create new elements
+        POI_arr.sort((a, b) => (a.risk > b.risk) ? 1 : ((b.risk > a.risk) ? -1 : 0));
+        var usr_POI = document.getElementById("POI-dropdown").value;
+        var numElements = POI_arr.length;
+        var count_below = 0,
+            count_above = 0,
+            count_low = 0,
+            count_mod = 0,
+            count_high = 0,
+            count_total = 0;
+        var color_low = "#7CB9E8",
+            color_mod = "#958ee0",
+            color_high = "#fd5c63";
+
+        console.log(getProbability(POI_arr[0].risk));
+
+
+
+
+
+        clearBox("POI-table");
+
+
+        var POI_out = document.getElementById("POI-table");
+
+        create_header(POI_out);
+
+        for (var i = 0; i < POI_arr.length; i++) {
+            var POI_name = POI_arr[i].name;
+            var POI_risk = POI_arr[i].risk;
+            var POI_address = POI_arr[i].address;
+
+            console.log("RISK:" + getProbability(POI_risk));
+
+            var POI_card = document.createElement("div");
+            POI_card.setAttribute("class", "POI-card");
+
+            if (getProbability(POI_risk) == "LOW")
+                count_low++;
+            else if (getProbability(POI_risk) == "MODERATE")
+                count_mod++;
+            else
+                count_high++;
+
+            if (POI_name == document.getElementById("POI-dropdown").value) {
+                count_above = POI_arr.length - i;
+                count_below = i;
+            }
+
+
+
+            var table_row = document.createElement("tr");
+            var table_data_POI = document.createElement("td");
+            var table_data_risk = document.createElement("td");
+
+
+            table_data_risk.textContent = POI_risk;
+            //el.style.position = "absolute";
+            //el.style.bottom = (POI_risk * 100) + "%";
+            if (POI_name == usr_POI) {
+                POI_card.style.background = "#FFDA00";
+                POI_card.style.color = "black";
+            } else {
+                POI_card.style.background = "rgb(20, 8, 104)";
+                POI_card.style.color = "white";
+            }
+
+            POI_card.textContent = POI_name;
+
+
+            table_data_POI.append(POI_card);
+            table_data_risk.textContent = getProbability(POI_risk);
+            table_data_risk.style = "text-align: right;"
+
+            table_row.append(table_data_POI);
+            table_row.append(table_data_risk);
+
+            POI_out.append(table_row);
+        }
+
+        /*********************************Get Gradient*****************/
+        count_total = count_above + count_below;
+        var gradient_percent_low = (count_low / count_total) * 100;
+        var gradient_percent_high = (count_high / count_total) * 100;
+        var style_grad;
+        var style_grad_end;
+
+        if ((count_low + count_mod) == 0 ||
+            (count_low + count_high) == 0 ||
+            (count_mod + count_high) == 0) {
+            style_grad = "background: ";
+            style_grad_end = "";
+        } else {
+
+            style_grad = "background: linear-gradient(to bottom, ";
+            style_grad_end = ")";
+        }
+
+
+        if (count_low > 0) {
+            style_grad += color_low + " " + gradient_percent_low + "% ";
+            if (count_mod > 0 || count_high > 0)
+                style_grad += ", "
+        } else {
+            style_grad += "";
+        }
+
+        if (count_mod > 0) {
+            style_grad += color_mod;
+            if (count_high > 0)
+                style_grad += ", "
+        } else {
+            style_grad += "";
+        }
+
+        if (count_high > 0) {
+            if (count_low || count_mod)
+                style_grad += color_high + ") " + gradient_percent_high + "%";
+            else
+                style_grad += color_high;
+        } else {
+            style_grad += style_grad_end;
+        }
+        document.getElementById("POI-card-container").style = style_grad;
+        console.log(style_grad);
+        /*********************************Get Gradient^^^^^*****************/
+
+        document.getElementById("out_1").innerHTML = ("There is a " + getProbability(get_POI_risk(usr_POI, POI_arr)) +
+            " probability that atleast one person infected with COVID will travel to the same point of interest as you.");
+        var out_2_pvs = "";
+        var is_are;
+        var s_no_s;
+
+        if (count_above == 1) {
+            is_are = "is";
+            s_no_s = "";
+        } else {
+            is_are = "are";
+            s_no_s = "s ";
+        }
+        if (count_below == 1) {
+            is_are = "is";
+            s_no_s = "";
+        } else {
+            is_are = "are";
+            s_no_s = "s";
+        }
+
+        document.getElementById("out_2").innerHTML = ("There " + is_are + " " + count_below +
+            " similar establishment" + s_no_s + " LESS risky than the one you've chosen, and " + (count_above - 1) +
+            " similar establishment" + s_no_s + " that " + is_are + " MORE risky.");
+
+    }
+
+    function toggle_risk(risk, td) {
+        if (risk < 0.01)
+            td.textContent = "RF : <0.01"
+        else
+            td.textContent = "RF : " + round(risk, 4);
+
+
+        /*
+            if (POI_risk < 0.01)
+                table_data_risk.textContent = "RF : <0.01"
+            else
+                table_data_risk.textContent = "RF : " + round(POI_risk, 2);
+*/
+    }
+
+    function round(value, decimals) {
+        return Number(Math.round(value + 'e' + decimals) + 'e-' + decimals);
+    }
+
+    /*************^^^^^OnCLICK Events^^^^^^********************/
+
 
     function clear_dropdown(elementID) {
         var select = document.getElementById(elementID)
@@ -178,31 +439,6 @@
 
         select.options.length = 0;
         select.appendChild(el);
-    }
-
-    function enable_type(zip) {
-        if (parseData(is_zip_valid));
-
-        //clear type and POI dropdowns
-        clear_dropdown("type-dropdown");
-        clear_dropdown("POI-dropdown");
-
-        //enable type dropdown and disable POI dropdown
-        document.getElementById("type-dropdown").disabled = false;
-        document.getElementById("POI-dropdown").disabled = true;
-
-        //fill the type dropdown with the available types
-        parseData(getTypes);
-    }
-
-    function enable_POI() {
-        // clear POI dropdown
-        clear_dropdown("POI-dropdown");
-
-        //enable POI dropdown and submit button
-        document.getElementById("POI-dropdown").disabled = false;
-        document.getElementById("submit").disabled = false;
-        parseData(getPOIs);
     }
 
     function getProbability(risk) {
@@ -226,43 +462,6 @@
         document.getElementById(elementID).innerHTML = "";
     }
 
-    function calculate_risk_comparison() {
-        var usr_POI = document.getElementById("POI-dropdown").value;
-        var numElements = POI_arr.length;
-        var count_below, count_above;
-
-
-        //use POIarray to create new elements
-        POI_arr.sort((a, b) => (a.risk < b.risk) ? 1 : ((b.risk < a.risk) ? -1 : 0));
-
-        clearBox("POI-local-out");
-        document.getElementById("header-out").innerHTML = ("There is a " + getProbability(get_POI_risk(usr_POI, POI_arr)) + " probability that atleast one person infected with COVID will travel to the same point of interest as you.");
-        var POI_out = document.getElementById("POI-local-out");
-        for (var i = 0; i < POI_arr.length; i++) {
-            var POI_name = POI_arr[i].name;
-            var POI_risk = POI_arr[i].risk;
-            var POI_address = POI_arr[i].address;
-
-            var POI_card = document.createElement("div");
-            POI_card.setAttribute("class", "POI-card");
-            //el.style.position = "absolute";
-            //el.style.bottom = (POI_risk * 100) + "%";
-            if (POI_name == usr_POI) {
-                POI_card.style.background = "#FFDA00";
-                POI_card.style.color = "black";
-            } else {
-                POI_card.style.background = "rgb(20, 8, 104)";
-                POI_card.style.color = "white";
-            }
-
-            POI_card.textContent = POI_name;
-            POI_out.append(POI_card);
-            POI_out.append(document.createElement("br"));
-        }
-
-    }
-
-    /*************^^^^^OnCLICK Events^^^^^^********************/
 
     function has_input(ID_array) {
         var input;
@@ -393,6 +592,10 @@
             }
         });
     }
+</script>
+
+; } else { append_address_to_object(csv_POI, csv_address, POI_arr); } } POI_arr.sort((a, b) => (a.name > b.name) ? 1 : ((b.name > a.name) ? -1 : 0)); append_dropdown_object("POI-dropdown", POI_arr); } function parseData(callback) { Papa.parse("https://marykovic.github.io/COVID-Challenge/data.csv",
+{ download: true, header: true, complete: function(results) { callback(results.data); } }); }
 </script>
 
 </html>
