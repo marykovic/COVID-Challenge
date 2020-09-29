@@ -183,17 +183,12 @@
             if (isUnique(csv_zip, zip_arr)) {
                 zip_arr.push(csv_zip);
             }
-            if (csv_zip === usr_zip) {
-                console.log("valid");
-            }
+            if (csv_zip === usr_zip) {}
         }
-        console.log("invalid");
-        console.log(zip_arr);
         var s = "";
         for (var i = 0; i < zip_arr.length; i++) {
             s += zip_arr[i] + ",";
         }
-        console.log(s);
         return false;
     }
 
@@ -216,7 +211,6 @@
             //fill the type dropdown with the available types
             parseData(getTypes);
         } else {
-            console.log("Invalid");
             el.innerHTML = "Please choose another zip";
         }
     }
@@ -269,8 +263,6 @@
             color_mod = "#958ee0",
             color_high = "#fd5c63";
 
-        console.log(getProbability(POI_arr[0].risk));
-
 
 
 
@@ -287,7 +279,6 @@
             var POI_risk = POI_arr[i].risk;
             var POI_address = POI_arr[i].address;
 
-            console.log("RISK:" + getProbability(POI_risk));
 
             var POI_card = document.createElement("div");
             POI_card.setAttribute("class", "POI-card");
@@ -379,7 +370,6 @@
             style_grad += style_grad_end;
         }
         document.getElementById("POI-card-container").style = style_grad;
-        console.log(style_grad);
         /*********************************Get Gradient^^^^^*****************/
 
         document.getElementById("out_1").innerHTML = ("There is a " + getProbability(get_POI_risk(usr_POI, POI_arr)) +
