@@ -7,6 +7,10 @@
     <title>COVID Data Challenge</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+ 
+    <!-- MapBox API-->
+    <script src='https://api.mapbox.com/mapbox-gl-js/v1.12.0/mapbox-gl.js'></script>
+    <link href='https://api.mapbox.com/mapbox-gl-js/v1.12.0/mapbox-gl.css' rel='stylesheet' />
 </head>
 
 <body>
@@ -56,7 +60,102 @@
             <div class="col-sm-5">
                 <div class="row">
                     <div id="map-container">
-                        <div id="map"></div>
+                        <!-- For Google Maps-->
+                        <!-- <div id="map"></div> -->
+                        <!-- For MapBox-->
+                        <div id='map'></div>
+                        <script>
+                                                // TO MAKE THE MAP APPEAR YOU MUST
+                            // ADD YOUR ACCESS TOKEN FROM
+                            // https://account.mapbox.com
+                            mapboxgl.accessToken = 'pk.eyJ1IjoibGVlam9vbmd5aW4iLCJhIjoiY2tnMjJkcThtMDQxcTJyb2ZhdW5iNmNhbyJ9.aBnUh9rFi_f0tDP1LrgJIg';
+                        var map = new mapboxgl.Map({
+                        container: 'map',
+                        style: 'mapbox://styles/mapbox/streets-v11',
+                        center: [-117.161087, 32.715736],
+                        zoom: 9
+                        });
+                        var hoveredStateId = null;
+                        
+                        map.on('load', function () {
+                        map.addSource('states', {
+                        'type': 'geojson',
+                        'data':
+                        'https://docs.mapbox.com/mapbox-gl-js/assets/us_states.geojson'
+                        });
+                        
+                        // The feature-state dependent fill-opacity expression will render the hover effect
+                        // when a feature's hover state is set to true.
+                        map.addLayer({
+                        'id': 'state-fills',
+                        'type': 'fill',
+                        'source': 'states',
+                        'layout': {},
+                        'paint': {
+                        'fill-color': '#627BC1',
+                        'fill-opacity': [
+                        'case',
+                        ['boolean', ['feature-state', 'hover'], false],
+                        1,
+                        0.5
+                        ]
+                        }
+                        });
+                        
+                        map.addLayer({
+                        'id': 'state-borders',
+                        'type': 'line',
+                        'source': 'states',
+                        'layout': {},
+                        'paint': {
+                        'line-color': '#627BC1',
+                        'line-width': 2
+                        }
+                        });
+                        
+                        // When the user moves their mouse over the state-fill layer, we'll update the
+                        // feature state for the feature under the mouse.
+                        map.on('mousemove', 'state-fills', function (e) {
+                        if (e.features.length > 0) {
+                        if (hoveredStateId) {
+                        map.setFeatureState(
+                        { source: 'states', id: hoveredStateId },
+                        { hover: false }
+                        );
+                        }
+                        hoveredStateId = e.features[0].id;
+                        map.setFeatureState(
+                        { source: 'states', id: hoveredStateId },
+                        { hover: true }
+                        );
+                        }
+                        });
+                        
+                        // When the mouse leaves the state-fill layer, update the feature state of the
+                        // previously hovered feature.
+                        map.on('mouseleave', 'state-fills', function () {
+                        if (hoveredStateId) {
+                        map.setFeatureState(
+                        { source: 'states', id: hoveredStateId },
+                        { hover: false }
+                        );
+                        }
+                        hoveredStateId = null;
+                        });
+                        });
+                        </script>
+                        <!--<script>
+                        // TO MAKE THE MAP APPEAR YOU MUST
+                        // ADD YOUR ACCESS TOKEN FROM
+                        // https://account.mapbox.com
+                        mapboxgl.accessToken = 'pk.eyJ1IjoibGVlam9vbmd5aW4iLCJhIjoiY2tnMjJkcThtMDQxcTJyb2ZhdW5iNmNhbyJ9.aBnUh9rFi_f0tDP1LrgJIg';
+                        var map = new mapboxgl.Map({
+                        container: 'map',
+                        style: 'mapbox://styles/mapbox/streets-v11', // stylesheet location
+                        center: [ -117.1611 , 32.7157], // starting position [lng, lat]
+                        zoom: 9 // starting zoom
+                        });
+                        </script>-->
                     </div>
                 </div>
                 <div id="row">
@@ -93,7 +192,7 @@
 
     <!--Google Maps-->
 
-    <!----------------------------------------------------------------------------------------------------------------------->
+    <!-----------------------------------------------------------------------------------------------------------------------
     <script>
         // Initialize and add the map
         function initMap() {
@@ -119,6 +218,9 @@
     </script>
     <script defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB8zfDkpEDIgL0UhUvYvwu-J1JCPvriRIk&callback=initMap">
     </script>
+
+--> 
+
     <!------------------------------------------------------------------------------------------------------------------------>
     <script src="papaparse.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.5.1.min.js" integrity="sha256-9/aliU8dGd2tb6OSsuzixeV4y/faTqgFtohetphbbj0=" crossorigin="anonymous"></script>
