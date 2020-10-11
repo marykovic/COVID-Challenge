@@ -62,8 +62,13 @@
                     <div id="map-container">
                         <!-- For Google Maps-->
                         <!-- <div id="map"></div> -->
-                        <!-- For MapBox-->
+                        <!-- For MapBox-->                    
                         <div id='map'></div>
+                        <div class='riskInfo'>
+                            <div><strong>Zipcode:</strong> <span id='z_code'></span></div>
+                            <div><strong>Business Name:</strong> <span id='b_name'></span></div>
+                            <div><strong>% COVID Risk:</strong> <span id='t_risk'></span></div>
+                        </div>
                         <script>
                                                 // TO MAKE THE MAP APPEAR YOU MUST
                             // ADD YOUR ACCESS TOKEN FROM
@@ -76,7 +81,11 @@
                                 zoom: 9
                             });
                             var hoveredStateId = null;
-                            
+                            // Variables for the info box on the topleft of map
+                            var z_Display = document.getElementById('z_code');
+                            var b_Display = document.getElementById('b_name');
+                            var t_Display = document.getElementById('t_risk');
+
                             map.on('load', function () {
                                 map.addSource('zipcodes', {
                                 'type': 'geojson',
@@ -117,7 +126,18 @@
                                 // When the user moves their mouse over the state-fill layer, we'll update the
                                 // feature state for the feature under the mouse.
                                 map.on('mousemove', 'state-fills', function (e) {
-                                    if (e.features.length > 0) {                                        
+                                    // Set variables equal to the current feature's magnitude, location, and time
+                                    //TODO: change the variables to link the info we got
+                                    //var covidZipcode = e.features[0].properties.mag;
+                                    //var covidBusiness = e.features[0].properties.place;
+                                    //var covidRisk = new Date(e.features[0].properties.time);
+                                    if (e.features.length > 0) { 
+                                        // Display the zipcode, business name, % of risk in the sidebar
+                                        //z_Display.textContent = covidZipcode;
+                                        //b_Display.textContent = covidBusiness;
+                                        //t_Display.textContent = covidRisk; 
+                                        //for testing purpose only:
+                                        z_Display.textContent = "BOOPITY BOOP";
                                         if (hoveredStateId) {
                                             map.setFeatureState(
                                                 { source: 'zipcodes', id: hoveredStateId },
@@ -143,6 +163,10 @@
                                         );
                                     }
                                     hoveredStateId = null;
+                                    // Remove the information from the previously hovered feature from the sidebar
+                                    z_Display.textContent = '';
+                                    b_Display.textContent = '';
+                                    t_Display.textContent = '';
                                 });
                             });
                         </script>

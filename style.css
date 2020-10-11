@@ -23,6 +23,7 @@ h2 {
 }
 
 #map {
+    position: absolute;
     display: inline-block;
     height: 100%;
     width: 100%;
@@ -55,6 +56,20 @@ h2 {
     display: inline-block;
     margin: 5px 0 5px 0;
 }
+
+.riskInfo {
+    position: absolute;
+    font-family: sans-serif;
+    margin-top: 5px;
+    margin-left: 5px;
+    padding: 5px;
+    width: 30%;
+    border: 2px solid black;
+    font-size: 14px;
+    color: #222;
+    background-color: #fff;
+    border-radius: 3px;
+  }
 
 #POI-card-container {
     background: linear-gradient(to bottom, #7CB9E8, #fd5c63);
