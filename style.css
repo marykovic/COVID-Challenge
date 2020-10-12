@@ -29,13 +29,6 @@ h2 {
     width: 100%;
 }
 
-#map-container {
-    height: 400px;
-    padding: 0 0 0 15px;
-}
-
-#out-container {}
-
 .input {
     width: 90%;
     border: 1px solid grey;
@@ -51,24 +44,27 @@ h2 {
     /*color: white;
     background: rgb(20, 8, 104);
     */
-    box-shadow: 5px 5px 5px grey;
+    /*box-shadow: 5px 5px 5px grey;*/
     padding: 6px;
     display: inline-block;
     margin: 5px 0 5px 0;
 }
 
-.riskInfo {
+.hover-on-map {
     position: absolute;
     font-family: sans-serif;
     margin-top: 5px;
     margin-left: 5px;
     padding: 5px;
-    width: 30%;
-    border: 2px solid black;
+    border: 0px solid black;
     font-size: 14px;
     color: #222;
-    background-color: #fff;
-    border-radius: 3px;
+    background-color: #f2f3f4;
+    border-radius: 10px;
+    box-shadow: 0 0 10px gray;
+    width: auto;
+    margin: 15px;
+    
   }
 
 #POI-card-container {
@@ -84,3 +80,24 @@ h2 {
 #POI-table {
     width: 100%;
 }
+
+
+::-webkit-scrollbar {
+    width: 10px;
+  }
+
+  /* Track */
+::-webkit-scrollbar-track {
+    background: #f1f1f1; 
+  }
+   
+  /* Handle */
+  ::-webkit-scrollbar-thumb {
+    background: #888; 
+  }
+  
+  /* Handle on hover */
+  ::-webkit-scrollbar-thumb:hover {
+    background: #555; 
+  }
+  
