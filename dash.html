@@ -23,9 +23,10 @@
 
     <div id="map" style="height: 75vh"></div>
     <div class='hover-on-map' style="right: 5px; width: 200px;">
-        <div><strong>Neighborhood:</strong> <span id='n_name'></span></div>
+
         <div><strong>Zipcode:</strong> <span id='z_code'></span></div>
         <!--<div><strong>Business Name:</strong> <span id='b_name'></span></div>
+            <div><strong>Neighborhood:</strong> <span id='n_name'></span></div>
         <div><strong>% COVID Risk:</strong> <span id='t_risk'></span></div>-->
     </div>
 
@@ -64,7 +65,114 @@
             </table>
         </div>
     </div>
+    <script>
+        // TO MAKE THE MAP APPEAR YOU MUST
+        // ADD YOUR ACCESS TOKEN FROM
+        // https://account.mapbox.com
+        mapboxgl.accessToken = 'pk.eyJ1IjoibGVlam9vbmd5aW4iLCJhIjoiY2tnMjJkcThtMDQxcTJyb2ZhdW5iNmNhbyJ9.aBnUh9rFi_f0tDP1LrgJIg';
+        var map = new mapboxgl.Map({
+            container: 'map',
+            style: 'mapbox://styles/mapbox/streets-v11',
+            center: [-117.161087, 32.715736],
+            zoom: 9
+        });
+        var hoveredStateId = null;
+        // Variables for the info box on the topleft of map
+        var z_Display = document.getElementById('z_code');
+        //var b_Display = document.getElementById('b_name');
+        //var t_Display = document.getElementById('t_risk');
+        var z_input = document.getElementById('source-zip');
 
+        map.on('load', function () {
+            map.addSource('zipcodes', {
+                'type': 'geojson',
+                'data': 'ca_california_zip_codes_geo.min.json',
+                'generateId': true
+                //'data': 'https://docs.mapbox.com/mapbox-gl-js/assets/us_states.geojson'
+            });
+
+            // The feature-state dependent fill-opacity expression will render the hover effect
+            // when a feature's hover state is set to true.
+            map.addLayer({
+                'id': 'state-fills',
+                'type': 'fill',
+                'source': 'zipcodes',
+                'layout': {},
+                'paint': {
+                    'fill-color': '#627BC1',
+                    'fill-opacity': [
+                        'case',
+                        ['boolean', ['feature-state', 'hover'], false],
+                        0,
+                        0.5
+                    ]
+                }
+            });
+
+            map.addLayer({
+                'id': 'state-borders',
+                'type': 'line',
+                'source': 'zipcodes',
+                'layout': {},
+                'paint': {
+                    'line-color': '#627BC1',
+                    'line-width': 2
+                }
+            });
+            // When the user clicks their mouse over the state-fill layer on a zipcode, we'll update the
+            // input box to reflect that zipcode
+            map.on('click', 'state-fills', function (e) {
+                var covidZipcode = e.features[0].properties.ZCTA5CE10;
+                z_input.value = covidZipcode;
+            });
+            // When the user moves their mouse over the state-fill layer, we'll update the
+            // feature state for the feature under the mouse.
+            map.on('mousemove', 'state-fills', function (e) {
+                // Set variables equal to the current feature's magnitude, location, and time
+                //TODO: change the variables to link the info we got
+                var covidZipcode = e.features[0].properties.ZCTA5CE10;
+                //var covidBusiness = e.features[0].properties.place;
+                //var covidRisk = new Date(e.features[0].properties.time);
+                if (e.features.length > 0) {
+                    // Display the zipcode, business name, % of risk in the sidebar
+                    z_Display.textContent = covidZipcode;
+                    //b_Display.textContent = covidBusiness;
+                    //t_Display.textContent = covidRisk; 
+                    //for testing purpose only:
+                    //z_Display.textContent = "BOOPITY BOOP";
+                    if (hoveredStateId) {
+                        map.setFeatureState(
+                            { source: 'zipcodes', id: hoveredStateId },
+                            { hover: false }
+                        );
+                    }
+                    hoveredStateId = e.features[0].id;
+                    //window.alert()
+                    map.setFeatureState(
+                        { source: 'zipcodes', id: hoveredStateId },
+                        { hover: true }
+                    );
+                }
+            });
+
+            // When the mouse leaves the state-fill layer, update the feature state of the
+            // previously hovered feature.
+            map.on('mouseleave', 'state-fills', function () {
+                if (hoveredStateId) {
+                    map.setFeatureState(
+                        { source: 'zipcodes', id: hoveredStateId },
+                        { hover: false }
+                    );
+                }
+                hoveredStateId = null;
+                // Remove the information from the previously hovered feature from the sidebar
+                z_Display.textContent = '';
+                //b_Display.textContent = '';
+                //t_Display.textContent = '';
+            });
+        });
+    </script>
+    <!--
     <script>
         mapboxgl.accessToken = 'pk.eyJ1IjoibGVlam9vbmd5aW4iLCJhIjoiY2tnMjJkcThtMDQxcTJyb2ZhdW5iNmNhbyJ9.aBnUh9rFi_f0tDP1LrgJIg';
         var map = new mapboxgl.Map({
@@ -136,7 +244,8 @@
                 if (e.features.length > 0) {
                     // Display the zipcode, business name, % of risk in the sidebar
                     z_Display.textContent = covidZipcode;
-                    n_Display = parseZipNeighborhoods(getNeighborhood);
+                    n_Display.textContent = parseZipNeighborhoods(getNeighborhood);
+                    //console.log(parseZipNeighborhoods(getNeighborhood));
 
 
                     //b_Display.textContent = covidBusiness;
@@ -183,9 +292,10 @@
                     return csv_neighborhood = row[1];
                 }
             }
+            return "";
         }
     </script>
-
+-->
 
     <!------------------------------------------------------------------------------------------------------------------------>
     <script src="papaparse.min.js"></script>
