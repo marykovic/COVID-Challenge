@@ -1,79 +1,108 @@
 <!DOCTYPE html>
 <!-- saved from url=(0046)https://covid19abmdash.web.app/html/about.html -->
-<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-        <title>About this Model</title>
-        <!--Open Sans from Google fonts-->
-        <link href="./disclaimerPage_files/css" rel="stylesheet" type="text/css">
-        <link href="./disclaimerPage_files/css(1)" rel="stylesheet">
-        <link href="./disclaimerPage_files/model.css" rel="stylesheet">
-        <style>body {
-            background-image: url('graph_cluster_distant.png');
-          }</style>
-    </head>
-    <body id="main" style="position: relative;">
-        <span style="position: relative; z-index: 1;"></span>
-        <div style="height: 70%; width: 70%; margin: 0px auto; position: relative; z-index: 1;">
-            <div class="testbox">
-                <form>
+<html>
 
-               
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>About this Model</title>
+    <!--Open Sans from Google fonts-->
+    <link href="./disclaimerPage_files/css" rel="stylesheet" type="text/css">
+    <link href="./disclaimerPage_files/css(1)" rel="stylesheet">
+    <link href="./disclaimerPage_files/model.css" rel="stylesheet">
+    <style>
+        body {
+            background-image: url('graph_cluster_distant.png');
+        }
+    </style>
+</head>
+
+<body id="main" style="position: relative;">
+    <span style="position: relative; z-index: 1;"></span>
+    <div style="height: 70%; width: 70%; margin: 0px auto; position: relative; z-index: 1;">
+        <div class="testbox">
+            <form>
+
+
                 <h1> About this model </h1>
                 <ol>
-                     
-                    <li> This model is a <b>work in progress</b>. Model parameters and assumptions are continuously reviewed and revised based on published research.</li>
-                    
+
+                    <li> This model is a <b>work in progress</b>. Model parameters and assumptions are continuously
+                        reviewed and revised based on published research.</li>
+
                 </ol>
                 <div>
                     <h4> <b> Model Information and Assumptions</b></h4>
                     <ol>
-                    <li>This model calculates the <b>risk of COVID-19 transmission</b> when visiting a particular point of interest. Additionally, it provides a <b>list of similar POIs</b>, from the neighborhood, that have varying level of risks</li>
-                    
-                </ol>
+                        <li>This model calculates the <b>risk of COVID-19 transmission</b> when visiting a particular
+                            point of interest. Additionally, it provides a <b>list of similar POIs</b>, from the
+                            neighborhood, that have varying level of risks</li>
+
+                    </ol>
                 </div>
 
                 <div>
                     <h4> <b> User Adjustable Parameters</b></h4>
                     <ol>
                         <li>
-                            <b>Neighborhoods/Zip Codes</b>: Choose the particular area located in <b>San Diego</b>. 
-                            <ul><li>(Ex: Chula Vista, La Jolla, Downtown, etc.)</li></ul>
+                            <b>Neighborhoods/Zip Codes</b>: Choose the particular area located in <b>San Diego</b>.
+                            <ul>
+                                <li>(Ex: Chula Vista, La Jolla, Downtown, etc.)</li>
+                            </ul>
                         </li>
                         <li>
-                            <b>Type of Business</b>: Choose the type of business located in the neighborhood. 
-                            <ul><li>(Ex: Restaurant, Bank, Grocery, etc.)</li></ul>
+                            <b>Type of Business</b>: Choose the type of business located in the neighborhood.
+                            <ul>
+                                <li>(Ex: Restaurant, Bank, Grocery, etc.)</li>
+                            </ul>
                         </li>
                         <li>
-                            <b>Point of Interest</b>: Choose the particular POI. 
-                            <ul><li>(Ex: McDonalds, Burger King, Tapioca Express, etc.)</li></ul>
+                            <b>Point of Interest</b>: Choose the particular POI.
+                            <ul>
+                                <li>(Ex: McDonalds, Burger King, Tapioca Express, etc.)</li>
+                            </ul>
                         </li>
 
                     </ol>
                 </div>
 
-                <div> <h4> <b> To learn more about the project, <a href="COVID_Brief.pdf" download=""> click here! </a> </b></h4> </div>
-                <div> <h4> <b> To provide feedback and advice, as well as suggestions, <a href="https://forms.gle/41QbjsZFu5zdubu77" download=""> click here! </a> </b></h4> </div>
-                <div> <h4> <b id="message">Please click Dashboard to proceed to the User Parameters.</b></h4> </div>
-                
-                <button type="button" onclick="window.location.href='dash.html'" class="btn-outline-mdb-color btn-lg waves-effect hvr-radial-out " style="margin: auto; margin-top:20px;" id="proceed">Dashboard</button>
+                <div>
+                    <h4> <b> To learn more about the project, <a href="COVID_Brief.pdf" download=""> click here! </a>
+                        </b></h4>
+                </div>
+                <div>
+                    <h4> <b> To provide feedback and advice, as well as suggestions, <a
+                                href="https://forms.gle/41QbjsZFu5zdubu77" download=""> click here! </a> </b></h4>
+                </div>
+                <div>
+                    <h4> <b id="message">Please click Dashboard to proceed to the User Parameters.</b></h4>
+                </div>
+                <p><b>Contributors:</b> Bailey Man, Pietro Emilio Spini, Mary Kovic, Casey Lee, Adi Gupta, Ansh Motiani
+                </p>
+
+
+                <button type="button" onclick="window.location.href='dash.html'"
+                    class="btn-outline-mdb-color btn-lg waves-effect hvr-radial-out "
+                    style="margin: auto; margin-top:20px;" id="proceed">Dashboard</button>
                 <script>
                     var btn = document.getElementById('proceed');
                     var message = document.getElementById('message');
 
                     if (sessionStorage.nxtpage == 'simulate') {
-                        btn.innerHTML = "Dashboard"; 
+                        btn.innerHTML = "Dashboard";
                         message.innerHTML += "Please click Dashboard to proceed to the User Parameters."
                     };
-                    
-                </script>
-                </form>
-            </div>
-        </div>
-        <span style="position: relative; z-index: 1;"></span>
 
-        <script style="position: relative; z-index: 1;">
-            
-        </script><span style="position: relative; z-index: 1;">
-    
-    
+                </script>
+            </form>
+        </div>
+    </div>
+    <span style="position: relative; z-index: 1;"></span>
+
+    <script style="position: relative; z-index: 1;">
+
+    </script><span style="position: relative; z-index: 1;">
+
+
 </body>
+
 </html>
