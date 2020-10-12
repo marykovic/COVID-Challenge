@@ -25,8 +25,8 @@
     <div class='hover-on-map' style="right: 5px; width: 200px;">
         <div><strong>Neighborhood:</strong> <span id='n_name'></span></div>
         <div><strong>Zipcode:</strong> <span id='z_code'></span></div>
-        <div><strong>Business Name:</strong> <span id='b_name'></span></div>
-        <div><strong>% COVID Risk:</strong> <span id='t_risk'></span></div>
+        <!--<div><strong>Business Name:</strong> <span id='b_name'></span></div>
+        <div><strong>% COVID Risk:</strong> <span id='t_risk'></span></div>-->
     </div>
 
     <form class="hover-on-map" style="text-align: center; width: 300px;">
@@ -76,6 +76,7 @@
         var hoveredStateId = null;
         // Variables for the info box on the topleft of map
         var z_Display = document.getElementById('z_code');
+        var n_Display = document.getElementById('n_name');
         //var b_Display = document.getElementById('b_name');
         //var t_Display = document.getElementById('t_risk');
         var z_input = document.getElementById('source-zip');
@@ -129,11 +130,15 @@
                 // Set variables equal to the current feature's magnitude, location, and time
                 //TODO: change the variables to link the info we got
                 var covidZipcode = e.features[0].properties.ZCTA5CE10;
+                var covidNeighborhood;
                 //var covidBusiness = e.features[0].properties.place;
                 //var covidRisk = new Date(e.features[0].properties.time);
                 if (e.features.length > 0) {
                     // Display the zipcode, business name, % of risk in the sidebar
                     z_Display.textContent = covidZipcode;
+                    n_Display = parseZipNeighborhoods(getNeighborhood);
+
+
                     //b_Display.textContent = covidBusiness;
                     //t_Display.textContent = covidRisk; 
                     if (hoveredStateId) {
@@ -167,6 +172,18 @@
                 //t_Display.textContent = '';
             });
         });
+
+        function getNeighborhood(data) {
+            var zipcode_hover = document.getElementById('z_code').textContent;
+            var csv_zip, csv_neighborhood;
+            for (var i = 0; i < data.length; i++) {
+                row = Object.values(data[i]);
+                csv_zip = row[0];
+                if (csv_zip == zipcode_hover) {
+                    return csv_neighborhood = row[1];
+                }
+            }
+        }
     </script>
 
 
@@ -595,7 +612,6 @@
                 header: true,
                 complete: function (results) {
                     callback(results.data);
-
                 }
             });
         }
@@ -606,7 +622,6 @@
                 header: true,
                 complete: function (results) {
                     callback(results.data);
-
                 }
             });
         }
