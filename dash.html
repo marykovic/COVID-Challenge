@@ -7,255 +7,173 @@
     <title>COVID Data Challenge</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
- 
+
     <!-- MapBox API-->
     <script src='https://api.mapbox.com/mapbox-gl-js/v1.12.0/mapbox-gl.js'></script>
     <link href='https://api.mapbox.com/mapbox-gl-js/v1.12.0/mapbox-gl.css' rel='stylesheet' />
 </head>
 
 <body>
-    <div class="jumbotron text-center">
+
+    <div class="jumbotron text-center" style="margin:0; height: 25vh; background: #f2f3f4;">
         <h1>COVID Travel Planner</h1>
         <h3><b>Make more informed desicions about traveling during the Era of COVID-19</b></h3>
         <br>
-        <p style="font-size:medium; margin-bottom: -20px"><b>Contributors:</b> Bailey Man, Pietro Emilio Spini, Mary Kovic, Adi Gupta, Ansh Motiani</p>
     </div>
 
-    <div class="container">
-        <div class="row">
-            <div class="col-sm-3">
-                <div class="row">
-                    <h2></h2>
-                    <form style="box-shadow: 0 0 10px grey; padding: 0 0 0 10px;">
-                        <!--ZIP-->
-                        <div class="form-group" style="padding: 10px 0 0 0;">
-                            <label for="source-zip">Zip code:</label>
-                            <input type="text" id="source-zip" class="input" name="source-zip" value="" onchange="enable_type(this.value);" onkeypress="enable_type(this.value)"><br>
-                            <div>
-                                <h5 id="invalid_zip_msg"></h5>
-                            </div>
-                        </div>
+    <div id="map" style="height: 75vh"></div>
+    <div class='hover-on-map' style="right: 5px; width: 200px;">
+        <div><strong>Neighborhood:</strong> <span id='n_name'></span></div>
+        <div><strong>Zipcode:</strong> <span id='z_code'></span></div>
+        <div><strong>Business Name:</strong> <span id='b_name'></span></div>
+        <div><strong>% COVID Risk:</strong> <span id='t_risk'></span></div>
+    </div>
 
-                        <!--TYPE at Source Zip-->
-                        <div class="form-group">
-                            <label for="type-dropdown">Select a type of service:</label><br>
-                            <select id="type-dropdown" class="input" disabled="disabled" onchange="enable_POI(); ">
-                            <option></option>
-                            </select><br>
-                        </div>
-
-                        <!--POIs at Source Zip & Type-->
-                        <div class="form-group">
-                            <label for="POI-dropdown">Select an establishment:</label><br>
-                            <select id="POI-dropdown" class="input" disabled="disabled" onchange="enable_submit()">
-                            <option></option>
-                        </select><br>
-                        </div>
-
-                        <!--SUBMIT Button-->
-                        <br><input id="submit" type="button" class="input" value="Go" disabled="disabled" onclick="calculate_risk_comparison()" /><br><br>
-                    </form>
-                </div>
-            </div>
-            <div class="col-sm-5">
-                <div class="row">
-                    <div id="map-container">
-                        <!-- For Google Maps-->
-                        <!-- <div id="map"></div> -->
-                        <!-- For MapBox-->                    
-                        <div id='map'></div>
-                        <div class='riskInfo'>
-                            <div><strong>Zipcode:</strong> <span id='z_code'></span></div>
-                            <!--<div><strong>Business Name:</strong> <span id='b_name'></span></div>
-                            <div><strong>% COVID Risk:</strong> <span id='t_risk'></span></div>-->
-                        </div>
-                        <script>
-                                                // TO MAKE THE MAP APPEAR YOU MUST
-                            // ADD YOUR ACCESS TOKEN FROM
-                            // https://account.mapbox.com
-                            mapboxgl.accessToken = 'pk.eyJ1IjoibGVlam9vbmd5aW4iLCJhIjoiY2tnMjJkcThtMDQxcTJyb2ZhdW5iNmNhbyJ9.aBnUh9rFi_f0tDP1LrgJIg';
-                            var map = new mapboxgl.Map({
-                                container: 'map',
-                                style: 'mapbox://styles/mapbox/streets-v11',
-                                center: [-117.161087, 32.715736],
-                                zoom: 9
-                            });
-                            var hoveredStateId = null;
-                            // Variables for the info box on the topleft of map
-                            var z_Display = document.getElementById('z_code');
-                            //var b_Display = document.getElementById('b_name');
-                            //var t_Display = document.getElementById('t_risk');
-                            var z_input = document.getElementById('source-zip');
-
-                            map.on('load', function () {
-                                map.addSource('zipcodes', {
-                                'type': 'geojson',
-                                'data': 'ca_california_zip_codes_geo.min.json',
-                                'generateId': true
-                                //'data': 'https://docs.mapbox.com/mapbox-gl-js/assets/us_states.geojson'
-                                });
-                                
-                                // The feature-state dependent fill-opacity expression will render the hover effect
-                                // when a feature's hover state is set to true.
-                                map.addLayer({
-                                    'id': 'state-fills',
-                                    'type': 'fill',
-                                    'source': 'zipcodes',
-                                    'layout': {},
-                                    'paint': {
-                                        'fill-color': '#627BC1',
-                                        'fill-opacity': [
-                                            'case',
-                                            ['boolean', ['feature-state', 'hover'], false],
-                                            0,
-                                            0.5
-                                        ]
-                                    }
-                                });
-                                
-                                map.addLayer({
-                                    'id': 'state-borders',
-                                    'type': 'line',
-                                    'source': 'zipcodes',
-                                    'layout': {},
-                                    'paint': {
-                                        'line-color': '#627BC1',
-                                        'line-width': 2
-                                    }
-                                });
-                                // When the user clicks their mouse over the state-fill layer on a zipcode, we'll update the
-                                // input box to reflect that zipcode
-                                map.on('click', 'state-fills', function (e) {
-                                    var covidZipcode = e.features[0].properties.ZCTA5CE10;
-                                    z_input.value = covidZipcode;
-                                });
-                                // When the user moves their mouse over the state-fill layer, we'll update the
-                                // feature state for the feature under the mouse.
-                                map.on('mousemove', 'state-fills', function (e) {
-                                    // Set variables equal to the current feature's magnitude, location, and time
-                                    //TODO: change the variables to link the info we got
-                                    var covidZipcode = e.features[0].properties.ZCTA5CE10;
-                                    //var covidBusiness = e.features[0].properties.place;
-                                    //var covidRisk = new Date(e.features[0].properties.time);
-                                    if (e.features.length > 0) { 
-                                        // Display the zipcode, business name, % of risk in the sidebar
-                                        z_Display.textContent = covidZipcode;
-                                        //b_Display.textContent = covidBusiness;
-                                        //t_Display.textContent = covidRisk; 
-                                        //for testing purpose only:
-                                        //z_Display.textContent = "BOOPITY BOOP";
-                                        if (hoveredStateId) {
-                                            map.setFeatureState(
-                                                { source: 'zipcodes', id: hoveredStateId },
-                                                { hover: false }
-                                            );
-                                        }
-                                        hoveredStateId = e.features[0].id;
-                                        //window.alert()
-                                        map.setFeatureState(
-                                            { source: 'zipcodes', id: hoveredStateId },
-                                            { hover: true }
-                                        );
-                                    }
-                                });
-                                
-                                // When the mouse leaves the state-fill layer, update the feature state of the
-                                // previously hovered feature.
-                                map.on('mouseleave', 'state-fills', function () {
-                                    if (hoveredStateId) {
-                                        map.setFeatureState(
-                                            { source: 'zipcodes', id: hoveredStateId },
-                                            { hover: false }
-                                        );
-                                    }
-                                    hoveredStateId = null;
-                                    // Remove the information from the previously hovered feature from the sidebar
-                                    z_Display.textContent = '';
-                                    //b_Display.textContent = '';
-                                    //t_Display.textContent = '';
-                                });
-                            });
-                        </script>
-                        <!--<script>
-                        // TO MAKE THE MAP APPEAR YOU MUST
-                        // ADD YOUR ACCESS TOKEN FROM
-                        // https://account.mapbox.com
-                        mapboxgl.accessToken = 'pk.eyJ1IjoibGVlam9vbmd5aW4iLCJhIjoiY2tnMjJkcThtMDQxcTJyb2ZhdW5iNmNhbyJ9.aBnUh9rFi_f0tDP1LrgJIg';
-                        var map = new mapboxgl.Map({
-                        container: 'map',
-                        style: 'mapbox://styles/mapbox/streets-v11', // stylesheet location
-                        center: [ -117.1611 , 32.7157], // starting position [lng, lat]
-                        zoom: 9 // starting zoom
-                        });
-                        </script>-->
-                    </div>
-                </div>
-                <div id="row">
-                    <div id="out-container">
-                        <p id="out_1" style="padding: 10px 30px 0 30px; font-weight: bold;"></p>
-                        <p id="out_2" style="padding: 0 30px 0 30px; font-weight: bold;"></p>
-                        <p id="out_3" style="padding: 0 30px 0 30px; font-weight: bold;"></p>
-                    </div>
-                </div>
-
-            </div>
-            <div id="comparison_output" class="col-sm-4">
-                <h3 style="text-align: left;">Search for similar locations within the same Zipcode</h3>
-                <div id="POI-card-container">
-                    <div id="POI-card-container-overlay">
-                        <table id="POI-table">
-                        </table>
-                    </div>
-                </div>
-            </div>
+    <form class="hover-on-map" style="text-align: center; width: 300px;">
+        <!--ZIP-->
+        <div class="form-group" style="padding: 10px 0 0 0;">
+            <label for="source-zip">Zip code:</label>
+            <input type="text" id="source-zip" class="input" name="source-zip" value="" onchange="enable_type();"
+                onkeypress="enable_type()"><br>
         </div>
-        <div class="row">
-            <div class="col-sm-3">
 
-            </div>
-            <div class="col-sm-5">
+        <!--TYPE at Source Zip-->
+        <div class="form-group">
+            <label for="type-dropdown">Select a type of service:</label><br>
+            <select id="type-dropdown" class="input" disabled="disabled" onchange="enable_POI(); ">
+                <option></option>
+            </select><br>
+        </div>
 
+        <!--POIs at Source Zip & Type-->
+        <div class="form-group">
+            <label for="POI-dropdown">Select an establishment:</label><br>
+            <select id="POI-dropdown" class="input" disabled="disabled" onchange="enable_submit()">
+                <option></option>
+            </select><br>
+        </div>
 
-            </div>
-            <div class="col-sm-4"></div>
+        <!--SUBMIT Button-->
+        <br><input id="submit" type="button" class="input" value="Go" disabled="disabled"
+            onclick="calculate_risk_comparison()" /><br><br>
+    </form>
+
+    <div id="POI-card-container" class="hover-on-map; width: auto;">
+        <div id=" POI-card-container-overlay">
+            <table id="POI-table">
+            </table>
         </div>
     </div>
 
-
-    <!--Google Maps-->
-
-    <!-----------------------------------------------------------------------------------------------------------------------
     <script>
-        // Initialize and add the map
-        function initMap() {
-            // The location of Uluru
-            var uluru = {
-                lat: 33.0,
-                lng: -116.86
-            };
-            // The map, centered at Uluru
-            var map = new google.maps.Map(
-                document.getElementById('map'), {
-                    zoom: 9,
-                    center: uluru
-                });
-            // The marker, positioned at Uluru
+        mapboxgl.accessToken = 'pk.eyJ1IjoibGVlam9vbmd5aW4iLCJhIjoiY2tnMjJkcThtMDQxcTJyb2ZhdW5iNmNhbyJ9.aBnUh9rFi_f0tDP1LrgJIg';
+        var map = new mapboxgl.Map({
+            container: 'map',
+            style: 'mapbox://styles/mapbox/streets-v11',
+            center: [-117.161087, 32.715736],
+            zoom: 9
+        });
+        var hoveredStateId = null;
+        // Variables for the info box on the topleft of map
+        var z_Display = document.getElementById('z_code');
+        //var b_Display = document.getElementById('b_name');
+        //var t_Display = document.getElementById('t_risk');
+        var z_input = document.getElementById('source-zip');
 
-        }
-        /*Load the API from the specified URL
-         The async attribute allows the browser to render the page while the API loads
-         The key parameter will contain your own API key (which is not needed for this tutorial)
-         The callback parameter executes the initMap() function
-        */
-    </script>
-    <script defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB8zfDkpEDIgL0UhUvYvwu-J1JCPvriRIk&callback=initMap">
+        map.on('load', function () {
+            map.addSource('zipcodes', {
+                'type': 'geojson',
+                'data': 'ca_california_zip_codes_geo.min.json',
+                'generateId': true
+                //'data': 'https://docs.mapbox.com/mapbox-gl-js/assets/us_states.geojson'
+            });
+
+            // The feature-state dependent fill-opacity expression will render the hover effect
+            // when a feature's hover state is set to true.
+            map.addLayer({
+                'id': 'state-fills',
+                'type': 'fill',
+                'source': 'zipcodes',
+                'layout': {},
+                'paint': {
+                    'fill-color': '#627BC1',
+                    'fill-opacity': [
+                        'case',
+                        ['boolean', ['feature-state', 'hover'], false],
+                        0,
+                        0.5
+                    ]
+                }
+            });
+
+            map.addLayer({
+                'id': 'state-borders',
+                'type': 'line',
+                'source': 'zipcodes',
+                'layout': {},
+                'paint': {
+                    'line-color': '#627BC1',
+                    'line-width': 2
+                }
+            });
+            // When the user clicks their mouse over the state-fill layer on a zipcode, we'll update the
+            // input box to reflect that zipcode
+            map.on('click', 'state-fills', function (e) {
+                var covidZipcode = e.features[0].properties.ZCTA5CE10;
+                z_input.value = covidZipcode;
+                enable_type();
+            });
+            // When the user moves their mouse over the state-fill layer, we'll update the
+            // feature state for the feature under the mouse.
+            map.on('mousemove', 'state-fills', function (e) {
+                // Set variables equal to the current feature's magnitude, location, and time
+                //TODO: change the variables to link the info we got
+                var covidZipcode = e.features[0].properties.ZCTA5CE10;
+                //var covidBusiness = e.features[0].properties.place;
+                //var covidRisk = new Date(e.features[0].properties.time);
+                if (e.features.length > 0) {
+                    // Display the zipcode, business name, % of risk in the sidebar
+                    z_Display.textContent = covidZipcode;
+                    //b_Display.textContent = covidBusiness;
+                    //t_Display.textContent = covidRisk; 
+                    if (hoveredStateId) {
+                        map.setFeatureState(
+                            { source: 'zipcodes', id: hoveredStateId },
+                            { hover: false }
+                        );
+                    }
+                    hoveredStateId = e.features[0].id;
+                    //window.alert()
+                    map.setFeatureState(
+                        { source: 'zipcodes', id: hoveredStateId },
+                        { hover: true }
+                    );
+                }
+            });
+
+            // When the mouse leaves the state-fill layer, update the feature state of the
+            // previously hovered feature.
+            map.on('mouseleave', 'state-fills', function () {
+                if (hoveredStateId) {
+                    map.setFeatureState(
+                        { source: 'zipcodes', id: hoveredStateId },
+                        { hover: false }
+                    );
+                }
+                hoveredStateId = null;
+                // Remove the information from the previously hovered feature from the sidebar
+                z_Display.textContent = '';
+                //b_Display.textContent = '';
+                //t_Display.textContent = '';
+            });
+        });
     </script>
 
---> 
 
     <!------------------------------------------------------------------------------------------------------------------------>
     <script src="papaparse.min.js"></script>
-    <script src="https://code.jquery.com/jquery-3.5.1.min.js" integrity="sha256-9/aliU8dGd2tb6OSsuzixeV4y/faTqgFtohetphbbj0=" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"
+        integrity="sha256-9/aliU8dGd2tb6OSsuzixeV4y/faTqgFtohetphbbj0=" crossorigin="anonymous"></script>
 
 
     <script>
@@ -272,7 +190,7 @@
             col_risk = 10;
 
         /**********************OnCLICK Events*************************/
-        function enable_type(zip) {
+        function enable_type() {
             var el = document.getElementById("invalid_zip_msg");
             if (!parseData(is_zip_valid)) {
                 innerHTML = "";
@@ -285,8 +203,6 @@
                 document.getElementById("POI-dropdown").disabled = true;
                 document.getElementById("submit").disabled = true;
                 clearBox("POI-table");
-                clearBox("out_1");
-                clearBox("out_2");
 
                 //fill the type dropdown with the available types
                 parseData(getTypes);
@@ -380,7 +296,9 @@
             count_total = count_above + count_below;
 
             set_gradient(count_low, count_mod, count_high, count_total);
-            out_results(count_above, count_below, usr_POI);
+            //out_results(count_above, count_below, usr_POI);
+            document.getElementById("POI-card-container").setAttribute("class", "hover-on-map");
+            document.getElementById("POI-card-container").style = "bottom: 5px; max-height: 35%; overflow-y: auto; width=auto;"
         }
 
         function create_header(POI_out) {
@@ -396,6 +314,7 @@
             //create and style table head for risk
             var table_head_risk = document.createElement("th");
             table_head_risk.textContent = "Risk Level";
+            table_head_risk.style = "text-align :right;";
 
             //append table head POI and table head risk to tableheader
             table_header.append(table_head_risk);
@@ -429,7 +348,12 @@
                 " similar establishment" + s_no_s + " LESS risky than the one you've chosen, and " + (count_above - 1) +
                 " similar establishment" + s_no_s + " that " + is_are + " MORE risky.");
 
-            document.getElementById("out-container").style = "border: 4px solid yellow;"
+
+
+            document.getElementById("out-container").style = "bottom: 40%";
+            clearBox("out_1");
+            clearBox("out_2");
+
         }
 
         function set_gradient(count_low, count_mod, count_high, count_total) {
@@ -669,7 +593,18 @@
             Papa.parse("https://marykovic.github.io/COVID-Challenge/data.csv", {
                 download: true,
                 header: true,
-                complete: function(results) {
+                complete: function (results) {
+                    callback(results.data);
+
+                }
+            });
+        }
+
+        function parseZipNeighborhoods(callback) {
+            Papa.parse("https://marykovic.github.io/COVID-Challenge/ZIP_WITH_NEIGHBORHOODS.csv", {
+                download: true,
+                header: true,
+                complete: function (results) {
                     callback(results.data);
 
                 }
